@@ -98,10 +98,22 @@
 
         <!-- Filter & Actions Bar -->
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-wrap gap-3 justify-between items-center no-print">
-            <div class="flex items-center gap-2 w-full sm:w-auto">
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                 <i class="fa-solid fa-filter text-emerald-600"></i>
-                <span class="text-sm font-semibold">Periode:</span>
+                <span class="text-sm font-semibold">Filter:</span>
                 <input type="month" id="filterBulan" class="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                
+                <select id="filterKategori" class="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+                    <option value="Semua">Semua Kategori</option>
+                    <option value="Pendidikan">Pendidikan</option>
+                    <option value="Transportasi">Transportasi</option>
+                    <option value="Shopee">Shopee</option>
+                    <option value="Makanan">Makanan</option>
+                    <option value="Tagihan">Tagihan</option>
+                    <option value="Gaji">Gaji</option>
+                    <option value="Tunjangan">Tunjangan</option>
+                    <option value="Lain lain">Lain lain</option>
+                </select>
             </div>
 
             <div class="flex gap-2 w-full sm:w-auto justify-end">
@@ -306,6 +318,7 @@
             }
 
             document.getElementById('filterBulan').addEventListener('change', renderApp);
+            document.getElementById('filterKategori').addEventListener('change', renderApp);
         });
 
         function formatRupiah(number) {
@@ -376,7 +389,13 @@
 
         function renderApp() {
             const selectedMonth = document.getElementById('filterBulan').value;
-            const filteredTx = transactions.filter(t => t.tanggal.startsWith(selectedMonth));
+            const selectedCategory = document.getElementById('filterKategori').value;
+
+            const filteredTx = transactions.filter(t => {
+                const matchMonth = t.tanggal.startsWith(selectedMonth);
+                const matchCategory = selectedCategory === 'Semua' || t.kategori === selectedCategory;
+                return matchMonth && matchCategory;
+            });
 
             renderSummary(filteredTx);
             renderTable(filteredTx);
@@ -385,7 +404,7 @@
             const [y, m] = selectedMonth.split('-');
             const dateObj = new Date(y, m - 1);
             const monthName = dateObj.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-            document.getElementById('printPeriode').textContent = `Periode: ${monthName}`;
+            document.getElementById('printPeriode').textContent = `Periode: ${monthName}${selectedCategory !== 'Semua' ? ' | Kategori: ' + selectedCategory : ''}`;
         }
 
         function renderSummary(data) {
